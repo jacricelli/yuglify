@@ -24,18 +24,24 @@ var nopt = require('nopt'),
         terminal: Boolean,
         help: Boolean,
         version: Boolean,
-        combine: String
+        combine: String,
+        overwrite: Boolean,
     },
     shorts = {
         'o': ['--output'],
         't': ['--type'],
         'h': ['--help'],
         'v': ['--version'],
-        'c': ['--combine']
+        'c': ['--combine'],
+        'w': ['--overwrite'],
     },
     filename = defaults.name,
     parsed = nopt(known, shorts);
     parsed.type = parsed.type || 'js'; //Default to JS files
+
+if (parsed.overwrite) {
+    filename = '%s%s';
+}
 
 if (parsed.version) {
     console.log(pack.version);
@@ -47,6 +53,7 @@ if (parsed.help || (!parsed.argv.remain.length && !parsed.terminal)) {
         'yuglify@' + pack.version,
         '',
         '           yuglify ./foo.js #Auto saves to ./foo.min.js',
+        '           yuglify --overwrite ./foo.js #Auto saves to ./foo.js',
         '           yuglify ./foo/foo.js ./bar/bar.js #Auto saves to ./foo/foo.min.js and ./bar/bar.min.js',
         '           yuglify ./foo/foo.css ./bar/bar.js #Auto saves to ./foo/foo.min.css and ./bar/bar.min.js',
         '',
@@ -56,6 +63,7 @@ if (parsed.help || (!parsed.argv.remain.length && !parsed.terminal)) {
         '   --terminal      use stdin and stdout instead of files',
         '   --output <file> use this file when using --terminal',
         '   --combine/-c <file> compresses and combines all files into a single one.',
+        '   --overwrite/-w <file> overwrites the file rather than creating a new one',
         '   <files to compress>'
     ];
     console.log(help.join('\n'));
@@ -93,9 +101,9 @@ if (parsed.terminal) {
 
     // Uglify is blocking, so we will do this in sync.
     files.forEach(function(file, index) {
-        
+
         file = path.resolve(file);
-        
+
         if (exists(file)) {
 
             var data = fs.readFileSync(file, 'utf8'),
@@ -111,7 +119,7 @@ if (parsed.terminal) {
                     throw(err);
                     process.exit(1);
                 }
-                
+
                 if(parsed.combine) {
 
                     // Fill the buffer content by its type.
@@ -130,7 +138,7 @@ if (parsed.terminal) {
                     }
                     console.log(log);
                 }
-                
+
             });
         } else {
             console.log('Failed to find:', file);
