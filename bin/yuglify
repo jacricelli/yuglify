@@ -86,7 +86,6 @@ if (parsed.terminal) {
         compfn(data, function(err, smashed) {
             if (err) {
                 throw(err);
-                process.exit(1);
             }
             if (parsed.output) {
                 fs.writeFileSync(parsed.output, smashed, 'utf8');
@@ -105,7 +104,7 @@ if (parsed.terminal) {
         files = parsed.argv.remain;
 
     // Uglify is blocking, so we will do this in sync.
-    files.forEach(function(file, index) {
+    files.forEach(function(file) {
 
         file = path.resolve(file);
 
@@ -122,10 +121,9 @@ if (parsed.terminal) {
 
                 if (err) {
                     throw(err);
-                    process.exit(1);
                 }
 
-                if(parsed.combine) {
+                if (parsed.combine) {
 
                     // Fill the buffer content by its type.
                     buffer[extension.slice(1)] += smashed;
